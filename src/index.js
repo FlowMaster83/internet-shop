@@ -1,3 +1,8 @@
+// импорт с библиотеки
+import * as basicLightbox from 'basiclightbox'
+// ссылка на стили библиотеки
+import 'basiclightbox/dist/basicLightbox.min.css';
+
 const instruments = [
     {
         id: 1,
@@ -34,10 +39,10 @@ const list = document.querySelector('.js-list')
 
 function createMarkup(arr) {
     const markup = arr.map(
-        ({ id, img, name }) => `<li data-id=${id}>
+        ({ id, img, name }) => `<li data-id="${id}" class="js-card">
     <img src="${img}" alt="${name}" width="300">
     <h2>${name}</h2>
-    <p class="js-info"><a href="#">More...</a></p>
+    <p ><a class="js-info" href="#">More...</a></p>
     <div>
       <button>Add to favorite</button>
       <button>Add to cart</button>
@@ -47,10 +52,39 @@ function createMarkup(arr) {
   list.innerHTML = markup;
 }
 
-createMarkup(instruments)
+
 
 list.addEventListener('click', onClick)
 
+// скинуть нативное поведение тега <a>
 function onClick(event) {
     event.preventDefault()
+    if(event.target.classList.contains('js-info')) {
+        // находим первого отца с классом js-card
+    const { id } = event.target.closest('.js-card').dataset;
+    const product = findProduct(Number(id))
+
+    const instance = basicLightbox.create(`<div class="modal">
+    <img src="${product.img}" alt="${product.name}" width="200">
+    <h2>${product.name}</h2>
+    <h3>${product.price} грн</h3>
+    <p>${product.description}</p>
+    <div>
+      <button>Add to favorite</button>
+      <button>Add to cart</button>
+    </div>
+  </div>
+`);
+
+    instance.show();
+    }
 }
+
+createMarkup(instruments)
+
+function findProduct(productId) {
+    // поиск элемента по совпадению
+    return instruments.find(({id}) => id === productId)
+}
+
+// делаем модалку
